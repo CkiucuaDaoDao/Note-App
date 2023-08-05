@@ -1,7 +1,18 @@
 import React from 'react'
+import { Button, Typography } from '@mui/material'
+import { GoogleAuthProvider, signInWithPopup, getAuth } from 'firebase/auth'
 
 export default function Login() {
+  const auth = getAuth()
+  const handleLoginWithGoogle = async () => {
+    const provider = new GoogleAuthProvider()
+    const res = await signInWithPopup(auth, provider)
+    console.log({res})
+  }
   return (
-    <div>Login</div>
+    <>
+      <Typography variant='h5' sx={{marginBottom: '10px'}}>Welcome to Note App</Typography>
+      <Button variant='outlined' onClick={handleLoginWithGoogle}>Login With Google</Button>
+    </>
   )
 }
