@@ -25,12 +25,17 @@ const typeDefs = `#graphql
 
   type Query {
     folders: [Folder]
+    folder(folderId: String): Folder
   }
 `;
 
 const resolvers = {
     Query: {
-      folders: () => {return FakeData.folders}
+      folders: () => {return FakeData.folders},
+      folder: (parent, args) => {
+        const folderId = args.folderId
+        return FakeData.folders.find(folder => folder.id === folderId)
+      }
     },
     Folder: {
       author: (parent, args) => {
