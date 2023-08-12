@@ -2,12 +2,10 @@ import React, { useEffect, useState } from 'react'
 import {ContentState, convertFromHTML, convertToRaw, EditorState} from 'draft-js'
 import {Editor} from 'react-draft-wysiwyg'
 import {draftToHTML} from 'draftjs-to-html'
+import { useLoaderData } from 'react-router-dom'
 
 export default function Note() {
-    const note = {
-        id: '999',
-        content: '<p>This is new note</p>'
-    }
+    const { note } = useLoaderData()
 
     const [editorState, setEditorState] = useState(() => {
         return EditorState.createEmpty()
@@ -17,6 +15,11 @@ export default function Note() {
 
     useEffect(() => {
         const blocksFromHTML = convertFromHTML(note.content)
+        const state = ContentState.createFromBlockArray(
+            blocksFromHTML.contentBlocks,
+            blocksFromHTML.entityMap
+        )
+        setEditorState(EditorState.createWithContent(state))
     }, [note.id])
 
     useEffect(() => {
