@@ -22,4 +22,8 @@ type Query {
   folder(folderId: String): Folder,
   note(noteId: String): Note
 }
+
+type Mutation {
+  addFolder(name: String!): Folder 
+}
 `;
