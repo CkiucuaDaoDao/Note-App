@@ -11,7 +11,7 @@ import './FirebaseConfig.js'
 import { getAuth } from 'firebase-admin/auth'
 import { resolvers } from './resolvers/index.js';
 import { typeDefs } from './schemas/index.js';
-import { escape } from 'querystring';
+
 
 
 const app = express()
@@ -29,33 +29,40 @@ const server = new ApolloServer({
 await server.start()
 
 const authorizationJWT = async (req, res, next) => {
-  console.log({authorization: req.headers.authorization})
+  console.log({ authorization: req.headers.authorization });
   const authorizationHeader = req.headers.authorization;
 
   if (authorizationHeader) {
-      const accessToken = authorizationHeader.split(' ')[1]
+    const accessToken = authorizationHeader.split(' ')[1];
 
-      getAuth()
-        .verifyIdToken(accessToken)
-        .then((decodedToken) => {
-          console.log({ decodedToken })
-          res.locals.uid = decodedToken.uid
-          next()
-        })
-        .catch((err) => {
-          console.log({err})
-          return res.status(403).json({message: 'Forbidden', error: err})
-        })
+    getAuth()
+      .verifyIdToken(accessToken)
+      .then((decodedToken) => {
+        console.log({ decodedToken });
+        res.locals.uid = decodedToken.uid;
+        next();
+      })
+      .catch((err) => {
+        console.log({ err });
+        return res.status(403).json({ message: 'Forbidden', error: err });
+      });
   } else {
-    return res.status(401).json({message: 'Unauthorized'})
+    next();
+    // return res.status(401).json({ message: 'Unauthorized' });
   }
 }
 
-app.use(cors(), authorizationJWT, bodyParser.json(), expressMiddleware(server, {
-  context: async ({req, res}) => {
-    return { uid: res.locals.uid }
-  }
-}))
+app.use(
+  cors(),
+  authorizationJWT,
+  bodyParser.json(),
+  expressMiddleware(server, {
+    context: async ({ req, res }) => {
+      return { uid: res.locals.uid };
+    },
+  })
+)
+
 mongoose.set('strictQuery', false);
 mongoose
   .connect(URI, {

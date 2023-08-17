@@ -1,9 +1,10 @@
 import React, { createContext } from 'react'
 import { Button, Typography } from '@mui/material'
 import { GoogleAuthProvider, signInWithPopup, getAuth } from 'firebase/auth'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Navigate } from 'react-router-dom'
 import { useContext } from 'react'
 import { AuthContext } from '../context/AuthProvider'
+import { graphQLRequest } from '../utils/request'
 
 export default function Login() {
   const auth = getAuth()
@@ -12,13 +13,25 @@ export default function Login() {
 
   const handleLoginWithGoogle = async () => {
     const provider = new GoogleAuthProvider()
-    const res = await signInWithPopup(auth, provider)
-    console.log({res})
+    const {user: {uid, displayName}} = await signInWithPopup(auth, provider)
+    const {data} = await graphQLRequest({
+      query: `mutation register($uid: String!, $name: String!){
+        register(uid: $uid, name: $name) {
+          uid,
+          name
+        }
+      }`,
+      variable: {
+        uid,
+        name: displayName
+      }
+  })
+    console.log({data})
   }
 
   if (user?.uid) {
-    navigate('/')
-    return 
+    // navigate('/')
+    return <Navigate to="/" />
   }
 
   return (
